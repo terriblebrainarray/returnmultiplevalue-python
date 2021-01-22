@@ -1,0 +1,44 @@
+#downloading data
+%%bash
+mkdir pw-data
+wget http://dataincubator-wqu.s3.amazonaws.com/pwdata/201701scripts_sample.json.gz -nc -P ./pw-data
+wget http://dataincubator-wqu.s3.amazonaws.com/pwdata/practices.json.gz -nc -P ./pw-data
+
+#importing data after downloading
+
+import gzip
+import simplejson as json
+
+with gzip.open('./pw-data/201701scripts_sample.json.gz', 'rb') as f:
+    scripts = json.load(f)
+
+with gzip.open('./pw-data/practices.json.gz', 'rb') as f:
+    practices = json.load(f)
+
+import math
+import statistics
+def describe(key):
+    lst=[]
+    for i in range(len(scripts)):
+        lst.append(scripts[i][key])
+    n=len(lst)
+    
+    total=sum(lst)
+    avg=total/n
+    s=math.sqrt(sum([(i-avg)**2 for i in lst])/n)
+    ls=sorted(lst)
+  
+    lq = ls[:len(lst)//2]
+    uq = ls[len(lst)//2:]
+
+    q25 = statistics.median(lq)
+    med = statistics.median(lst)
+    q75 = statistics.median(uq)
+
+    return (total, avg, s, q25, med, q75)
+ 
+ summary = [('items', describe('items')),
+           ('quantity', describe('quantity')),
+           ('nic', describe('nic')),
+           ('act_cost', describe('act_cost'))]
+ Print(summary)
